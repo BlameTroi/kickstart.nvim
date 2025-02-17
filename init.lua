@@ -913,7 +913,24 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      require('mini.surround').setup {
+        -- Module mappings. Use `''` (empty string) to disable one.
+        -- 's' conflicts with leap, which I use more often, so remapping
+        -- to 'z', which seems to be the common approach.
+        -- NOTE: these may not catch everything.
+        mappings = {
+          add = 'za', -- Add surrounding in Normal and Visual modes
+          delete = 'zd', -- Delete surrounding
+          find = 'zf', -- Find surrounding (to the right)
+          find_left = 'zF', -- Find surrounding (to the left)
+          highlight = 'zh', -- Highlight surrounding
+          replace = 'zr', -- Replace surrounding
+          update_n_lines = 'zn', -- Update `n_lines`
+
+          suffix_last = 'l', -- Suffix to search with "prev" method
+          suffix_next = 'n', -- Suffix to search with "next" method
+        },
+      }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -980,7 +997,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
