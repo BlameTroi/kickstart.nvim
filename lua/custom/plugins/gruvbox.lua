@@ -5,7 +5,10 @@ return {
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
 
-  'ellisonleao/gruvbox.nvim',
+  -- I forked my own copy from  'ellisonleao/gruvbox.nvim',
+  -- so I could tweak it there since I am still struggling
+  -- with overrides in Lua.
+  dir = '~/Projects/nvim/gruvbox.nvim',
   priority = 1000, -- Make sure to load this before all the other start plugins.
   -- vim.cmd("colorscheme gruvbox"),
   init = function()
@@ -16,28 +19,5 @@ return {
     vim.o.termguicolors = true
     vim.cmd.colorscheme 'gruvbox'
   end,
-  opts = { -- these are from the config example on github, main change is contrast
-    show_warnings = true,
-    terminal_colors = true, -- add neovim terminal colors
-    undercurl = true,
-    underline = true,
-    bold = true,
-    italic = {
-      strings = true,
-      emphasis = true,
-      comments = true,
-      operators = false,
-      folds = true,
-    },
-    strikethrough = true,
-    invert_selection = false,
-    invert_signs = false,
-    invert_tabline = false,
-    invert_intend_guides = false,
-    inverse = true, -- invert background for search, diffs, statuslines and errors
-    contrast = 'hard', -- can be "hard", "soft" or empty string
-    dim_inactive = false,
-    transparent_mode = false,
-  },
 }
 -- vim: ts=2 sts=2 sw=2 et
