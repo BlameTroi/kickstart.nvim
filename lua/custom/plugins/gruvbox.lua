@@ -12,7 +12,7 @@ return {
   priority = 1000, -- Make sure to load this before all the other start plugins.
   -- vim.cmd("colorscheme gruvbox"),
   init = function()
-    vim.o.background = 'light'
+    vim.o.background = 'dark'
     --vim.o.contrast = "hard"
     vim.o.cursorline = true
     vim.o.number = true

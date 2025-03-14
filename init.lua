@@ -108,11 +108,30 @@ vim.opt.number = true
 vim.opt.mouse = 'a'
 
 -- I like block cursors.
-vim.opt.guicursor = ''
-
+-- vim.opt.guicursor = ''
+-- but I'm trying different shapes to make modes more distinct.
+-- vim.opt.guicursor = 'n-v-c-sm:block,i-ci-ve:ver40,r-cr-o:hor40'
+-- vim.opt.guicursor = 'n-v-c-sm:block,ci-ve:ver25,r-cr-o:hor20,i:block-blinkwait700-blinkoff400-blinkon250-Cursor/lCursor'
+-- from https://vim.fandom.com/wiki/Change_cursor_shape_in_different_modes
+-- Cursor settings:
+--   1 -> blinking block
+--   2 -> solid block
+--   3 -> blinking underscore
+--   4 -> solid underscore
+--   5 -> blinking vertical bar
+--   6 -> solid vertical bar
+vim.cmd [[
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+]]
+-- vim.cmd [[
+-- let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+-- let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+-- let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+-- ]]
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
-
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -120,7 +139,10 @@ vim.opt.showmode = false
 vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
-
+-- spell
+vim.opt.spelllang = { 'en_us' }
+vim.opt.spellfile = vim.fn.expand '~/.config/nvim/spell/en.utf-8.add'
+--
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -163,7 +185,20 @@ vim.opt.scrolloff = 5
 -- vim.opt.foldmethod = 'indent'
 
 -- [[ Languages ]]
-vim.g.chicken = 1
+-- is_chicken not just chicken
+vim.g.is_chicken = 1
+-- there are better places for this ...
+local schemegroup = vim.api.nvim_create_augroup('scheme', { clear = true })
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  pattern = { '*.scm', '*.sld', '*.ss', '*.rkt' },
+  group = schemegroup,
+  command = 'let b:is_chicken=1',
+})
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  pattern = { '*.scm', '*.sld', '*.ss', '*.rkt' },
+  group = schemegroup,
+  command = "echomsg 'schemgroup autocommand!'",
+})
 
 -- [[ Some basic behavior ]]
 
@@ -939,9 +974,9 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = { 'ruby', 'scheme' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true, disable = { 'ruby', 'scheme' } },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
