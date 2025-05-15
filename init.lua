@@ -214,8 +214,34 @@ vim.o.thesaurus = spelldir .. "/thesaurus.txt"
 --  See `:help hlsearch`
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
+-- <A-hjkl> as alternatives to arrows for cursor movement. I prefer to use the
+-- <A-hjkl> for moving lines in a buffer.
+
+vim.keymap.set("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
+vim.keymap.set("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
+vim.keymap.set("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
+vim.keymap.set("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
+vim.keymap.set("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
+vim.keymap.set("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+--- Intuitive line movement in a buffer -------------------------------
+
+-- Move by visible lines. Notes:
+-- - Don't map in Operator-pending mode because it severely changes behavior:
+--   like `dj` on non-wrapped line will not delete it.
+-- - Condition on `v:count == 0` to allow easier use of relative line numbers.
+vim.keymap.set({ "n", "x" }, "j", [[v:count == 0 ? 'gj' : 'j']], { expr = true })
+vim.keymap.set({ "n", "x" }, "k", [[v:count == 0 ? 'gk' : 'k']], { expr = true })
+
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+
+--- Tell me about the word under the cursor ---------------------------
+
+-- LSP support steals K, moving it from :keywordprg to vim.lsp.buf.hover(). Use
+-- <leader>K for :keywordprg. I have to do some work to use it for more than
+-- just :man.
+
+vim.keymap.set("n", "<leader>K", "<cmd>norm! K<cr>", { desc = "Keywordprg" })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -223,13 +249,18 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
+vim.keymap.set("t", "<C-/>", "<cmd>close<cr>", { desc = "Hide Terminal" })
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
--- TIP: Disable arrow keys in normal mode
-vim.keymap.set("n", "<left>", "")
-vim.keymap.set("n", "<right>", "")
-vim.keymap.set("n", "<up>", "")
-vim.keymap.set("n", "<down>", "")
+-- Turn off arrow keys in normal, input, and visual modes. The uber vimmers
+-- do this to demonstrate superiority. I do it avoid inadvertant touchpad
+-- clicks moving the cursor or changing a selection. But yeah, maybe it will
+-- make me less un-uber.
+
+vim.keymap.set({ "n", "i", "v" }, "<left>", "")
+vim.keymap.set({ "n", "i", "v" }, "<right>", "")
+vim.keymap.set({ "n", "i", "v" }, "<up>", "")
+vim.keymap.set({ "n", "i", "v" }, "<down>", "")
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -240,11 +271,25 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
--- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+-- Window resize (respecting `v:count`)
+vim.keymap.set("n", "<C-Left>", '"<Cmd>vertical resize -" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window width" })
+vim.keymap.set("n", "<C-Down>", '"<Cmd>resize -"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window height" })
+vim.keymap.set("n", "<C-Up>", '"<Cmd>resize +"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window height" })
+vim.keymap.set("n", "<C-Right>", '"<Cmd>vertical resize +" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window width" })
+
+--- Window splits -----------------------------------------------------
+
+vim.keymap.set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
+vim.keymap.set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
+vim.keymap.set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
+
+--- Treesitter information on item under cursor------------------------
+
+vim.keymap.set("n", "<leader>ui", vim.show_pos, { desc = "Inspect Pos" })
+vim.keymap.set("n", "<leader>uI", function()
+  vim.treesitter.inspect_tree()
+  vim.api.nvim_input("I")
+end, { desc = "Inspect Tree" })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -1022,7 +1067,24 @@ require("lazy").setup({
     main = "nvim-treesitter.configs", -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { "bash", "c", "diff", "html", "lua", "luadoc", "markdown", "markdown_inline", "query", "vim", "vimdoc" },
+      ensure_installed = {
+        "bash",
+        "c",
+        "diff",
+        "fortran",
+        "html",
+        "lua",
+        "luadoc",
+        "markdown",
+        "markdown_inline",
+        "odin",
+        "python",
+        "query",
+        "ruby",
+        "scheme",
+        "vim",
+        "vimdoc",
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1050,7 +1112,7 @@ require("lazy").setup({
       date_prefix = "#",
       file_extension = ".md",
     },
-    init = function(_, opts)
+    init = function(_)
       vim.keymap.set("n", "gw", function()
         require("512-words").open()
       end)
