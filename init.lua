@@ -945,6 +945,23 @@ require("lazy").setup({
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+
+      -- There are a few more things in mini I prefer:
+      require("mini.jump").setup()
+      require("mini.jump2d").setup()
+
+      -- Highlights and colors #8899aa
+      local hipatterns = require("mini.hipatterns")
+      hipatterns.setup({
+        highlighters = {
+          -- fixme = { pattern = "BUG:", group = "MiniHipatternsFixme" },
+          -- hack = { pattern = "HACK:", group = "MiniHipatternsHack" },
+          -- todo = { pattern = "TODO:", group = "MiniHipatternsTodo" },
+          -- note = { pattern = "NOTE:", group = "MiniHipatternsNote" },
+          -- TODO: do this only for filetypes that it matters, lua, vim, css
+          hex_color = hipatterns.gen_highlighter.hex_color(),
+        },
+      })
     end,
   },
   { -- Highlight, edit, and navigate code
