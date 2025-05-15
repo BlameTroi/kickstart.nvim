@@ -207,6 +207,11 @@ local spelldir = vim.fn.stdpath("config") .. "/spell"
 vim.o.spellfile = spelldir .. "/en.utf-8.add"
 vim.o.thesaurus = spelldir .. "/thesaurus.txt"
 
+-- lsp hijacks this and i think we want to use conform ...
+-- TODO: is this the right place for this?
+
+vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -368,6 +373,29 @@ require("lazy").setup({
         changedelete = { text = "~" },
       },
     },
+  },
+
+  -- Pick up where I left off.
+
+  {
+    "ethanholz/nvim-lastplace",
+    opts = {
+      lastplace_ignore_bufftype = { "quickfix", "nofile", "help" },
+      lastplace_ignore_filetype = { "gitcommit", "gitrebase" },
+      lastplace_open_folds = true,
+    },
+  },
+
+  -- A very good diff tool.
+
+  {
+    "zsaberlv0/zfvimdirdiff",
+    dependencies = {
+      "ZSaberLv0/ZFVimJob",
+      "ZSaberLv0/ZFVimIgnore",
+      "ZSaberLv0/ZFVimBackup",
+    },
+    cmd = "ZFDirDiff",
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -568,7 +596,18 @@ require("lazy").setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { "mason-org/mason.nvim", opts = {} },
+      {
+        "mason-org/mason.nvim",
+        opts = {
+          ui = {
+            icons = {
+              package_installed = "✓",
+              package_pending = "➜",
+              package_uninstalled = "✗",
+            },
+          },
+        },
+      },
       "mason-org/mason-lspconfig.nvim",
       "WhoIsSethDaniel/mason-tool-installer.nvim",
 
@@ -977,11 +1016,27 @@ require("lazy").setup({
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
-    --
+
     "projekt0n/github-nvim-theme",
     lazy = false,
     priority = 1000,
     config = function()
+      require("github-theme").setup({
+        options = {
+          styles = { -- Style to be applied to different syntax groups
+            comments = "italic", -- Value is any valid attr-list value `:help attr-list`
+            functions = "NONE", -- bold, underline, undercurl, underdouble,
+            keywords = "bold,italic", -- underdotted, underdashed, strikethrough,
+            variables = "NONE", -- reverse, inverse, italic, standout, altfont,
+            conditionals = "NONE", -- nocombine, NONE
+            constants = "NONE",
+            numbers = "NONE",
+            operators = "NONE",
+            strings = "NONE",
+            types = "NONE",
+          },
+        },
+      })
       vim.cmd("colorscheme github_dark_high_contrast")
     end,
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
@@ -1059,6 +1114,12 @@ require("lazy").setup({
           hex_color = hipatterns.gen_highlighter.hex_color(),
         },
       })
+
+      -- split or rejoin function arguments
+      require("mini.splitjoin").setup()
+
+      -- character pairs
+      require("mini.pairs").setup()
     end,
   },
   { -- Highlight, edit, and navigate code
