@@ -84,16 +84,20 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- I've seen cases of space as leader messing up some configs. The best way
+-- to resolve that seems to be:
+vim.cmd("nnoremap <space> <nop>")
+vim.cmd("vnoremap <space> <nop>")
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.cmd("nnoremap <space> <nop>")
-vim.cmd("vnoremap <space> <nop>")
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
+vim.o.background = "dark"
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -104,7 +108,7 @@ vim.g.have_nerd_font = true
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 -- Disabled, I don't like accidental clicks.
@@ -123,6 +127,7 @@ end)
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.o.linebreak = true
 
 -- Save undo history
 vim.o.undofile = true
@@ -130,6 +135,10 @@ vim.o.undofile = true
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
 vim.o.smartcase = true
+
+-- Options that might help completion.
+vim.o.infercase = true
+-- vim.o.isexpand = ????
 
 -- Keep signcolumn on by default
 vim.o.signcolumn = "yes"
@@ -168,6 +177,35 @@ vim.o.scrolloff = 3
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
 vim.o.confirm = true
+
+-- Some of my old preferences pulled in for review.
+
+-- syntax = "on", why isn't this set by default?
+vim.o.wrap = false
+
+-- nil and 1 by defaul
+vim.o.winborder = "rounded"
+vim.o.winminwidth = 5
+
+-- More popups, generally values 0/1 except for pumwidth.
+-- o.pumblend = 10
+-- vim.cmd("hi PmenuSel blend=0")
+-- o.pumheight = 10
+-- o.pummaxwidth = 50
+-- o.pumwidth = 15
+-- o.winblend = 10
+
+-- Prose and text
+
+-- While more text/writing support is needed, for now I'll enable spelling and
+-- thesaurus. Note that my dictionary additions are in my config and not under
+-- stdpath(data).
+
+vim.opt.spelllang = { "en_us" }
+vim.o.spellsuggest = "best,10"
+local spelldir = vim.fn.stdpath("config") .. "/spell"
+vim.o.spellfile = spelldir .. "/en.utf-8.add"
+vim.o.thesaurus = spelldir .. "/thesaurus.txt"
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -743,16 +781,16 @@ require("lazy").setup({
     "stevearc/conform.nvim",
     event = { "BufWritePre" },
     cmd = { "ConformInfo" },
-    keys = {
-      {
-        "<leader>f",
-        function()
-          require("conform").format({ async = true, lsp_format = "fallback" })
-        end,
-        mode = "",
-        desc = "[F]ormat buffer",
-      },
-    },
+    -- keys = {
+    --   {
+    --     "<leader>f",
+    --     function()
+    --       require("conform").format({ async = true, lsp_format = "fallback" })
+    --     end,
+    --     mode = "",
+    --     desc = "[F]ormat buffer",
+    --   },
+    -- },
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
@@ -770,12 +808,24 @@ require("lazy").setup({
         end
       end,
       formatters_by_ft = {
-        lua = { "stylua" },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        bash = { "shfmt" },
+        c = { "clang-format" },
+        fortran = { "fprettify" },
+        javascript = { "prettier" },
+        json = { "prettier" },
+        lua = { "stylua", opts = { args = "--search-parent-directories" } },
+        markdown = { "prettier" },
+        python = { "ruff" },
+        ruby = { "rubocop" },
+        toml = { "taplo" },
+        typescript = { "prettier" },
+        yaml = { "prettier" },
+        zsh = { "shfmt" },
       },
     },
   },
@@ -908,6 +958,8 @@ require("lazy").setup({
   },
 
   -- Highlight todo, notes, etc in comments
+  -- I prefer this todo highlighter, but I still use mini.hipatterns for hex
+  -- color codes.
   { "folke/todo-comments.nvim", event = "VimEnter", dependencies = { "nvim-lua/plenary.nvim" }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
@@ -988,6 +1040,21 @@ require("lazy").setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    "BlameTroi/512-words",
+    opts = {
+      buffer = { textwidth = 75 },
+      words = 0x100,
+      storage_directory = "~/Notepad",
+      date_prefix = "#",
+      file_extension = ".md",
+    },
+    init = function(_, opts)
+      vim.keymap.set("n", "gw", function()
+        require("512-words").open()
+      end)
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
