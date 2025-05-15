@@ -1,302 +1,48 @@
---[[
+--- ~/.config/kickstart/init.lua
 
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
+-- _mirabile dictu_ I have a reasonably clean and working config that I actually
+-- understand. After a lot of wheel spinning and rabbit hole spelunking I
+-- learned enough about Lua and Neovim start over with kickstart.nvim.
+--
+-- I tried LazyVim and some others, but until I slowly tried to build my own
+-- from scratch using mini.nvim for a guide, it just wasn't stable. I've seen
+-- other comments that this is common.
+--
+-- LazyVim is still a cool kit, but it's too cool. Too many layers of
+-- abstraction. Too many bank shots.
 
-What is Kickstart?
+--- The common startup. -------------------------------------------------------
 
-  Kickstart.nvim is *not* a distribution.
+-- Set leaders before anything else happens. Changing leader after a plugin has
+-- made a mapping based on leader is bad. Space seems to be a good leader for me
+-- and other people. I've seen cases of space as leader messing up some configs. The best way
+-- to resolve that seems to be no op space first.
 
-  Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
-    make Neovim your own! That might mean leaving Kickstart just the way it is for a while
-    or immediately breaking it into modular pieces. It's up to you!
-
-    If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
-      - https://learnxinyminutes.com/docs/lua/
-
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
-
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know the Neovim basics, you can skip this step.)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
-
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
-
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not exactly sure of what you're looking for.
-
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or Neovim features used in Kickstart.
-
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
---]]
-
--- I've seen cases of space as leader messing up some configs. The best way
--- to resolve that seems to be:
 vim.cmd("nnoremap <space> <nop>")
 vim.cmd("vnoremap <space> <nop>")
-
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
--- I'm not sure how I feel about not having a local leader, but i'll give it
--- a try.
 
--- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = true
-vim.o.background = "dark"
+--- Bootstrap Lazy.nvim. ------------------------------------------------------
 
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    error("Error cloning lazy.nvim:\n" .. out)
+  end
+end
 
--- Make line numbers default
-vim.o.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
-vim.o.relativenumber = true
+---@type vim.Option
+local rtp = vim.opt.rtp
+rtp:prepend(lazypath)
 
--- Enable mouse mode, can be useful for resizing splits for example!
--- Disabled, I don't like accidental clicks.
-vim.o.mouse = ""
+--- Run the initialization. ---------------------------------------------------
 
--- Don't show the mode, since it's already in the status line
-vim.o.showmode = false
-
--- Sync clipboard between OS and Neovim.
---  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.o.clipboard = "unnamedplus"
-end)
-
--- Enable break indent
-vim.o.breakindent = true
-vim.o.linebreak = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Options that might help completion.
-vim.o.infercase = true
--- vim.o.isexpand = ????
-
--- Keep signcolumn on by default
-vim.o.signcolumn = "yes"
-
--- Decrease update time
-vim.o.updatetime = 250
-
--- Decrease mapped sequence wait time
-vim.o.timeoutlen = 300
-
--- Configure how new splits should be opened
-vim.o.splitright = true
-vim.o.splitbelow = true
-
--- Sets how neovim will display certain whitespace characters in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
---
---  Notice listchars is set using `vim.opt` instead of `vim.o`.
---  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
---   See `:help lua-options`
---   and `:help lua-options-guide`
-vim.o.list = true
-vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
-
--- Preview substitutions live, as you type!
-vim.o.inccommand = "split"
-
--- Show which line your cursor is on
-vim.o.cursorline = true
-
--- Minimal number of screen lines to keep above and below the cursor.
-vim.o.scrolloff = 3
-
--- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
--- instead raise a dialog asking if you wish to save the current file(s)
--- See `:help 'confirm'`
-vim.o.confirm = true
-
--- Some of my old preferences pulled in for review.
-
--- syntax = "on", why isn't this set by default?
-vim.o.wrap = false
-
--- nil and 1 by defaul
-vim.o.winborder = "rounded"
-vim.o.winminwidth = 5
-
--- More popups, generally values 0/1 except for pumwidth.
--- o.pumblend = 10
--- vim.cmd("hi PmenuSel blend=0")
--- o.pumheight = 10
--- o.pummaxwidth = 50
--- o.pumwidth = 15
--- o.winblend = 10
-
--- Prose and text
-
--- While more text/writing support is needed, for now I'll enable spelling and
--- thesaurus. Note that my dictionary additions are in my config and not under
--- stdpath(data).
-
-vim.opt.spelllang = { "en_us" }
-vim.o.spellsuggest = "best,10"
-local spelldir = vim.fn.stdpath("config") .. "/spell"
-vim.o.spellfile = spelldir .. "/en.utf-8.add"
-vim.o.thesaurus = spelldir .. "/thesaurus.txt"
-
--- lsp hijacks this and i think we want to use conform ...
--- NOTE: switching conform for none-ls
--- TODO: is this the right place for this?
--- vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-
--- [[ Basic Keymaps ]]
---  See `:help vim.keymap.set()`
-
--- Clear highlights on search when pressing <Esc> in normal mode
---  See `:help hlsearch`
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-
--- <A-hjkl> as alternatives to arrows for cursor movement. I prefer to use the
--- <A-hjkl> for moving lines in a buffer.
-
-vim.keymap.set("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
-vim.keymap.set("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
-vim.keymap.set("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
-vim.keymap.set("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
-vim.keymap.set("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
-vim.keymap.set("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
---- Intuitive line movement in a buffer -------------------------------
-
--- Move by visible lines. Notes:
--- - Don't map in Operator-pending mode because it severely changes behavior:
---   like `dj` on non-wrapped line will not delete it.
--- - Condition on `v:count == 0` to allow easier use of relative line numbers.
-vim.keymap.set({ "n", "x" }, "j", [[v:count == 0 ? 'gj' : 'j']], { expr = true })
-vim.keymap.set({ "n", "x" }, "k", [[v:count == 0 ? 'gk' : 'k']], { expr = true })
-
--- Diagnostic keymaps
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
-
---- Tell me about the word under the cursor ---------------------------
-
--- LSP support steals K, moving it from :keywordprg to vim.lsp.buf.hover(). Use
--- <leader>K for :keywordprg. I have to do some work to use it for more than
--- just :man.
-
-vim.keymap.set("n", "<leader>K", "<cmd>norm! K<cr>", { desc = "Keywordprg" })
-
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
--- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set("t", "<C-/>", "<cmd>close<cr>", { desc = "Hide Terminal" })
-vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
--- Turn off arrow keys in normal, input, and visual modes. The uber vimmers
--- do this to demonstrate superiority. I do it avoid inadvertant touchpad
--- clicks moving the cursor or changing a selection. But yeah, maybe it will
--- make me less un-uber.
-
-vim.keymap.set({ "n", "i", "v" }, "<left>", "")
-vim.keymap.set({ "n", "i", "v" }, "<right>", "")
-vim.keymap.set({ "n", "i", "v" }, "<up>", "")
-vim.keymap.set({ "n", "i", "v" }, "<down>", "")
-
--- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
---  See `:help wincmd` for a list of all window commands
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
-
--- Window resize (respecting `v:count`)
-vim.keymap.set("n", "<C-Left>", '"<Cmd>vertical resize -" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window width" })
-vim.keymap.set("n", "<C-Down>", '"<Cmd>resize -"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window height" })
-vim.keymap.set("n", "<C-Up>", '"<Cmd>resize +"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window height" })
-vim.keymap.set("n", "<C-Right>", '"<Cmd>vertical resize +" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window width" })
-
---- Window splits -----------------------------------------------------
-
-vim.keymap.set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
-vim.keymap.set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
-vim.keymap.set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
-
---- Treesitter information on item under cursor------------------------
-
-vim.keymap.set("n", "<leader>ui", vim.show_pos, { desc = "Inspect Pos" })
-vim.keymap.set("n", "<leader>uI", function()
-  vim.treesitter.inspect_tree()
-  vim.api.nvim_input("I")
-end, { desc = "Inspect Tree" })
+require("config")
+-- require("autocmds")
+-- require("plugins")
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -311,21 +57,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     vim.hl.on_yank()
   end,
 })
-
--- [[ Install `lazy.nvim` plugin manager ]]
---    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    error("Error cloning lazy.nvim:\n" .. out)
-  end
-end
-
----@type vim.Option
-local rtp = vim.opt.rtp
-rtp:prepend(lazypath)
 
 -- [[ Configure and install plugins ]]
 --
@@ -480,7 +211,7 @@ require("lazy").setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     "folke/which-key.nvim",
     event = "VimEnter", -- Sets the loading event to 'VimEnter'
     opts = {
@@ -561,7 +292,7 @@ require("lazy").setup({
       { "nvim-telescope/telescope-ui-select.nvim" },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+      { "nvim-tree/nvim-web-devicons",            enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -1335,12 +1066,12 @@ require("lazy").setup({
     config = function()
       require("github-theme").setup({
         options = {
-          styles = { -- Style to be applied to different syntax groups
-            comments = "italic", -- Value is any valid attr-list value `:help attr-list`
-            functions = "NONE", -- bold, underline, undercurl, underdouble,
+          styles = {                  -- Style to be applied to different syntax groups
+            comments = "italic",      -- Value is any valid attr-list value `:help attr-list`
+            functions = "NONE",       -- bold, underline, undercurl, underdouble,
             keywords = "bold,italic", -- underdotted, underdashed, strikethrough,
-            variables = "NONE", -- reverse, inverse, italic, standout, altfont,
-            conditionals = "NONE", -- nocombine, NONE
+            variables = "NONE",       -- reverse, inverse, italic, standout, altfont,
+            conditionals = "NONE",    -- nocombine, NONE
             constants = "NONE",
             numbers = "NONE",
             operators = "NONE",
@@ -1613,7 +1344,7 @@ require("lazy").setup({
     },
     config = function()
       local null_ls = require("null-ls")
-      local formatting = null_ls.builtins.formatting -- to setup formatters
+      local formatting = null_ls.builtins.formatting   -- to setup formatters
       local diagnostics = null_ls.builtins.diagnostics -- to setup linters
 
       -- list of formatters & linters for mason to install
@@ -1621,7 +1352,7 @@ require("lazy").setup({
         ensure_installed = {
           "checkmake",
           "prettier", -- ts/js formatter
-          "stylua", -- lua formatter
+          "stylua",   -- lua formatter
           "eslint_d", -- ts/js linter
           "shfmt",
           "ruff",
