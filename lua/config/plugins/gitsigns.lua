@@ -1,5 +1,10 @@
+--- ~/.config/kickstart/lua/config/plugins/gitsigns.lua
+
+-- Get various information from git, show in sign column and status line.
+
 return {
   "lewis6991/gitsigns.nvim",
+
   opts = {
     -- signs = {
     --   add = { text = "+" },
@@ -8,6 +13,7 @@ return {
     --   topdelete = { text = "‾" },
     --   changedelete = { text = "~" },
     -- },
+
     on_attach = function(bufnr)
       local gitsigns = require("gitsigns")
 

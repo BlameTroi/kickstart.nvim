@@ -1,8 +1,12 @@
+--- ~/.config/kickstart/lua/config/plugins/which-key.lua
+
+-- Display pending keybinds. Great for discovery.
+
 return {
-  -- Useful plugin to show you pending keybinds.
   "folke/which-key.nvim",
-  event = "VimEnter", -- Sets the loading event to 'VimEnter'
+  event = "VimEnter",
   opts = {
+
     -- delay between pressing a key and opening which-key (milliseconds)
     -- this setting is independent of vim.o.timeoutlen
     delay = 300,

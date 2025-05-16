@@ -1,3 +1,5 @@
+--- ~/.config/kickstart/lua/config/plugins/vimdirdiff.lua
+
 -- A very good diff tool.
 
 return {

@@ -1,4 +1,6 @@
--- Neo-tree config copied in from kickstart.plugins
+--- ~/.config/kickstart/lua/config/plugins/neo-tree.lua
+
+-- An old style tree view file manager.
 
 return {
   "nvim-neo-tree/neo-tree.nvim",

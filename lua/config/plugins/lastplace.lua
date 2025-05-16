@@ -1,9 +1,19 @@
+--- ~/.config/kickstart/lua/config/plugins/lastplace.lua
+
+-- Resume editing at the same location.
+
 return {
-  -- Pick up where I left off.
   "ethanholz/nvim-lastplace",
   opts = {
-    lastplace_ignore_bufftype = { "quickfix", "nofile", "help" },
-    lastplace_ignore_filetype = { "gitcommit", "gitrebase" },
+    lastplace_ignore_bufftype = {
+      "quickfix",
+      "nofile",
+      "help",
+    },
+    lastplace_ignore_filetype = {
+      "gitcommit",
+      "gitrebase",
+    },
     lastplace_open_folds = true,
   },
 }

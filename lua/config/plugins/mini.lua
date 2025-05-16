@@ -1,4 +1,9 @@
-return { -- Collection of various small independent plugins/modules
+--- ~/.config/kickstart/lua/config/plugins/mini.lua
+
+--The mini.nvim library has several small plugin modules. I prefer many
+--of them to others I've seen.
+
+return {
   "echasnovski/mini.nvim",
   config = function()
     -- Better Around/Inside textobjects
@@ -31,10 +36,7 @@ return { -- Collection of various small independent plugins/modules
       return "%2l:%-2v"
     end
 
-    -- ... and there is more!
-    --  Check out: https://github.com/echasnovski/mini.nvim
-
-    -- There are a few more things in mini I prefer:
+    -- Jumping via f, F, or <enter>. It works well.
     require("mini.jump").setup()
     require("mini.jump2d").setup()
 
@@ -51,10 +53,10 @@ return { -- Collection of various small independent plugins/modules
       },
     })
 
-    -- split or rejoin function arguments
+    -- Split or rejoin function arguments
     require("mini.splitjoin").setup()
 
-    -- character pairs
+    -- Character pairs
     require("mini.pairs").setup()
   end,
 }

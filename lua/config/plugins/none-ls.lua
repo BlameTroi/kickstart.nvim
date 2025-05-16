@@ -1,11 +1,16 @@
--- Use none-ls to provide both formatting and extra linting.
+--- ~/.config/kickstart/lua/config/plugins/none-ls.lua
+
+-- Use none-ls to provide both formatting and linting beyond what conform
+-- and just an lsp provided.
 
 return {
   "nvimtools/none-ls.nvim",
+
   dependencies = {
     "nvimtools/none-ls-extras.nvim",
-    "jayp0521/mason-null-ls.nvim", -- ensure dependencies are installed
+    "jayp0521/mason-null-ls.nvim",
   },
+
   config = function()
     local null_ls = require("null-ls")
     local formatting = null_ls.builtins.formatting -- to setup formatters
