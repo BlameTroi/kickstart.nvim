@@ -1,6 +1,6 @@
 --- ~/.config/kickstart/lua/config/mapping.lua
 
--- Standard non-plugin related key mappings.
+-- Many mappings are set in Lazy plugin specs. It seems unavoidable.
 
 --- Assorted utility. ---------------------------------------------------------
 
@@ -53,14 +53,10 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 
 -- Resize splits. (respecting `v:count`)
 
-vim.keymap.set("n", "<C-Left>", '"<Cmd>vertical resize -" . v:count1 . "<CR>"',
-   { expr = true, replace_keycodes = false, desc = "Decrease window width" })
-vim.keymap.set("n", "<C-Down>", '"<Cmd>resize -"          . v:count1 . "<CR>"',
-   { expr = true, replace_keycodes = false, desc = "Decrease window height" })
-vim.keymap.set("n", "<C-Up>", '"<Cmd>resize +"          . v:count1 . "<CR>"',
-   { expr = true, replace_keycodes = false, desc = "Increase window height" })
-vim.keymap.set("n", "<C-Right>", '"<Cmd>vertical resize +" . v:count1 . "<CR>"',
-   { expr = true, replace_keycodes = false, desc = "Increase window width" })
+vim.keymap.set("n", "<C-Left>", '"<Cmd>vertical resize -" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window width" })
+vim.keymap.set("n", "<C-Down>", '"<Cmd>resize -"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Decrease window height" })
+vim.keymap.set("n", "<C-Up>", '"<Cmd>resize +"          . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window height" })
+vim.keymap.set("n", "<C-Right>", '"<Cmd>vertical resize +" . v:count1 . "<CR>"', { expr = true, replace_keycodes = false, desc = "Increase window width" })
 
 --- What am I looking at? -----------------------------------------------------
 
@@ -68,8 +64,8 @@ vim.keymap.set("n", "<C-Right>", '"<Cmd>vertical resize +" . v:count1 . "<CR>"',
 
 vim.keymap.set("n", "<leader>ui", vim.show_pos, { desc = "Inspect Pos" })
 vim.keymap.set("n", "<leader>uI", function()
-   vim.treesitter.inspect_tree()
-   vim.api.nvim_input("I")
+  vim.treesitter.inspect_tree()
+  vim.api.nvim_input("I")
 end, { desc = "Inspect Tree" })
 
 -- LSP support steals K, moving it from :keywordprg to vim.lsp.buf.hover(). Use
