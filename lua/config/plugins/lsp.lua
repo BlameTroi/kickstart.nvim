@@ -3,6 +3,12 @@
 -- Set up language server. I don't know yet how much of this can be broken
 -- out in separate files. Technically nvim-lspconfig is no longer needed but
 -- the people who know what they are doing continue to use it.
+--
+-- I found several interesting blog posts that helped me through this, and
+-- much of the code here and in none-ls.lua are from an exceptionally good
+-- one. I can't find the original post but this video was referenced:
+--
+-- https://www.youtube.com/watch?v=IobijoroGE0
 
 return {
   "neovim/nvim-lspconfig",
@@ -14,31 +20,32 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     "saghen/blink.cmp",
 
-    {
-      "dgagn/diagflow.nvim",
-      event = "LspAttach",
-      opts = {},
-    },
+    -- This moves error messages to the upper right of the screen on hover.
+    -- {
+    --   "dgagn/diagflow.nvim",
+    --   event = "LspAttach",
+    --   opts = {},
+    -- },
 
     -- Useful status updates for LSP.
     -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     -- {
-    --    "j-hui/fidget.nvim",
-    --    tag = "v1.4.0",
-    --    opts = {
-    --       progress = {
-    --          poll_rate = 1.5,
-    --          suppress_on_insert = true,
-    --          ignore_done_already = true,
-    --          ignore_empty_message = true,
+    --   "j-hui/fidget.nvim",
+    --   tag = "v1.4.0",
+    --   opts = {
+    --     progress = {
+    --       poll_rate = 0.25,
+    --       -- suppress_on_insert = true,
+    --       -- ignore_done_already = true,
+    --       -- ignore_empty_message = true,
+    --     },
+    --     notification = {
+    --       filter = vim.log.levels.WARN,
+    --       window = {
+    --         winblend = 33, -- Background color opacity in the notification window
     --       },
-    --       notification = {
-    --          filter = vim.log.levels.WARN,
-    --          window = {
-    --             winblend = 33, -- Background color opacity in the notification window
-    --          },
-    --       },
-    --    },
+    --     },
+    --   },
     -- },
   },
 
@@ -162,11 +169,13 @@ return {
           pylsp = {
             plugins = {
               -- Ruff is doing a lot of this.
-              pyflakes = { enabled = false },
-              pycodestyle = { enabled = false },
+              rope = { enabled = true },
+              pyflakes = { enabled = true },
+              pycodestyle = { enabled = true },
+              pydocstyle = { enabled = true },
               autopep8 = { enabled = false },
               yapf = { enabled = false },
-              mccabe = { enabled = false },
+              mccabe = { enabled = true },
               pylsp_mypy = { enabled = false },
               pylsp_black = { enabled = false },
               pylsp_isort = { enabled = false },
@@ -175,34 +184,34 @@ return {
         },
       },
 
-      ruff = {
-        -- Notes on code actions: https://github.com/astral-sh/ruff-lsp/issues/119#issuecomment-1595628355
-        -- Get isort like behavior: https://github.com/astral-sh/ruff/issues/8926#issuecomment-1834048218
-        commands = {
-          RuffAutofix = {
-            function()
-              vim.lsp.buf.execute_command({
-                command = "ruff.applyAutofix",
-                arguments = {
-                  { uri = vim.uri_from_bufnr(0) },
-                },
-              })
-            end,
-            description = "Ruff: Fix all auto-fixable problems",
-          },
-          RuffOrganizeImports = {
-            function()
-              vim.lsp.buf.execute_command({
-                command = "ruff.applyOrganizeImports",
-                arguments = {
-                  { uri = vim.uri_from_bufnr(0) },
-                },
-              })
-            end,
-            description = "Ruff: Format imports",
-          },
-        },
-      },
+      -- ruff = {
+      --   -- Notes on code actions: https://github.com/astral-sh/ruff-lsp/issues/119#issuecomment-1595628355
+      --   -- Get isort like behavior: https://github.com/astral-sh/ruff/issues/8926#issuecomment-1834048218
+      --   commands = {
+      --     RuffAutofix = {
+      --       function()
+      --         vim.lsp.buf.execute_command({
+      --           command = "ruff.applyAutofix",
+      --           arguments = {
+      --             { uri = vim.uri_from_bufnr(0) },
+      --           },
+      --         })
+      --       end,
+      --       description = "Ruff: Fix all auto-fixable problems",
+      --     },
+      --     RuffOrganizeImports = {
+      --       function()
+      --         vim.lsp.buf.execute_command({
+      --           command = "ruff.applyOrganizeImports",
+      --           arguments = {
+      --             { uri = vim.uri_from_bufnr(0) },
+      --           },
+      --         })
+      --       end,
+      --       description = "Ruff: Format imports",
+      --     },
+      --   },
+      -- },
 
       jsonls = {},
 
